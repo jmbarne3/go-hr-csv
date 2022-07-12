@@ -4,5 +4,5 @@ This is a simple utility that converts an automated Excel spreadsheet sent by UC
 
 ## Usage
 ```sh
-> go-hr-csv <input-file> [--with=<outputfile>] [--without=<outputfile>]
+> go-hr-csv <input-file>
 ```

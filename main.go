@@ -18,8 +18,20 @@ type record struct {
 	preferred_name string
 }
 
+func argCheck(args []string) {
+
+}
+
 func main() {
-	xlf, err := excelize.OpenFile("./example-list.xlsx")
+	args := os.Args[1:]
+
+	if len(args) == 0 {
+		log.Fatalln("You must include a file path as an argument")
+	}
+
+	xlfpath := args[0]
+
+	xlf, err := excelize.OpenFile(xlfpath)
 	if err != nil {
 		log.Fatal(err)
 	}
