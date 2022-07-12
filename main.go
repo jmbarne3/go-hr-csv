@@ -18,10 +18,6 @@ type record struct {
 	preferred_name string
 }
 
-func argCheck(args []string) {
-
-}
-
 func main() {
 	args := os.Args[1:]
 
@@ -44,12 +40,13 @@ func main() {
 	var records []record
 
 	process_list(rows, &records)
+	no_ops := filter_results(&records)
 
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	go create_without_ops_list(&records, &wg)
-	go create_with_ops_list(&records, &wg)
+	go write_csv_file(&no_ops, "./without.csv", &wg)
+	go write_csv_file(&records, "./with.csv", &wg)
 
 	wg.Wait()
 
@@ -90,14 +87,7 @@ func process_list(rows *excelize.Rows, records *[]record) {
 	}
 }
 
-func create_without_ops_list(records *[]record, wg *sync.WaitGroup) {
-	f, err := os.Create("./without.csv")
-	defer f.Close()
-
-	if err != nil {
-		log.Fatalln("Failed to open file", err)
-	}
-
+func filter_results(records *[]record) []record {
 	jfg_map := map[string]bool{
 		"Faculty":                       true,
 		"OPS":                           false,
@@ -108,43 +98,26 @@ func create_without_ops_list(records *[]record, wg *sync.WaitGroup) {
 		"USPS":                          true,
 	}
 
-	w := csv.NewWriter(f)
-	defer w.Flush()
-
-	headers := []string{
-		"first_name",
-		"last_name",
-		"email",
-		"preferred_name",
-	}
-
-	w.Write(headers)
+	var retval []record
 
 	for _, r := range *records {
 		if v, exists := jfg_map[r.job_family]; exists && v {
-			row := []string{
-				r.first_name,
-				r.last_name,
-				r.email,
-				r.preferred_name,
-			}
-
-			if err := w.Write(row); err != nil {
-				log.Fatalln("error writing record to file", err)
-			}
+			retval = append(retval, r)
 		}
 	}
 
-	wg.Done()
+	return retval
 }
 
-func create_with_ops_list(records *[]record, wg *sync.WaitGroup) {
-	f, err := os.Create("./with.csv")
-	defer f.Close()
+func write_csv_file(records *[]record, filepath string, wg *sync.WaitGroup) {
+
+	f, err := os.Create(filepath)
 
 	if err != nil {
 		log.Fatalln("Failed to open file", err)
 	}
+
+	defer f.Close()
 
 	w := csv.NewWriter(f)
 	defer w.Flush()
