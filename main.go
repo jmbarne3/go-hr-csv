@@ -63,7 +63,7 @@ func process_list(rows *excelize.Rows, records *[]record) {
 		}
 
 		row, _ := rows.Columns()
-		if len(row) < 14 {
+		if len(row) < 15 {
 			// Not enough columns, sp we're missing data
 			i++
 			continue
@@ -71,7 +71,7 @@ func process_list(rows *excelize.Rows, records *[]record) {
 
 		first_name := row[3]
 		last_name := row[2]
-		email := row[13]
+		email := row[14]
 		preferred_name := row[5]
 		job_family := row[8]
 
